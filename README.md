@@ -360,6 +360,542 @@ We'll build a simple application with:
 
 **Live coding demonstration follows...**
 
+# JavaScript Debugging & Testing Demo
+
+## Project Structure
+```
+demo-project/
+├── package.json
+├── src/
+│   ├── userManager.js
+│   ├── shoppingCart.js
+│   └── utils.js
+└── tests/
+    ├── userManager.test.js
+    ├── shoppingCart.test.js
+    └── utils.test.js
+```
+
+## Setup Instructions
+
+```bash
+# Create project directory
+mkdir js-debugging-demo
+cd js-debugging-demo
+
+# Initialize NPM
+npm init -y
+
+# Install Jest
+npm install --save-dev jest
+
+# Install nodemon for development (optional)
+npm install --save-dev nodemon
+```
+
+## package.json
+```json
+{
+  "name": "js-debugging-demo",
+  "version": "1.0.0",
+  "description": "JavaScript Debugging and Testing Demo",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": ["debugging", "testing", "jest"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
+```
+
+---
+
+## src/utils.js
+```javascript
+/**
+ * Utility functions for the demo
+ * CONTAINS INTENTIONAL BUGS FOR DEMONSTRATION
+ */
+
+/**
+ * Calculate percentage - HAS A BUG!
+ * @param {number} value - The value
+ * @param {number} total - The total
+ * @returns {number} Percentage
+ */
+function calculatePercentage(value, total) {
+    // BUG: No division by zero check
+    return (value / total) * 100;
+}
+
+/**
+ * Format currency - HAS A BUG!
+ * @param {number} amount - The amount to format
+ * @returns {string} Formatted currency
+ */
+function formatCurrency(amount) {
+    // BUG: Doesn't handle negative numbers well
+    return '$' + amount.toFixed(2);
+}
+
+/**
+ * Validate email - WORKS CORRECTLY
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if valid
+ */
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+/**
+ * Get discount amount - HAS A BUG!
+ * @param {number} price - Original price
+ * @param {number} discountPercent - Discount percentage
+ * @returns {number} Discounted price
+ */
+function getDiscountPrice(price, discountPercent) {
+    // BUG: Logic error - returns discount amount instead of final price
+    const discount = price * (discountPercent / 100);
+    return discount;
+}
+
+/**
+ * Capitalize first letter - WORKS CORRECTLY
+ * @param {string} str - String to capitalize
+ * @returns {string} Capitalized string
+ */
+function capitalizeFirst(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+module.exports = {
+    calculatePercentage,
+    formatCurrency,
+    validateEmail,
+    getDiscountPrice,
+    capitalizeFirst
+};
+```
+
+---
+
+## src/shoppingCart.js
+```javascript
+/**
+ * Shopping Cart implementation
+ * CONTAINS INTENTIONAL BUGS FOR DEMONSTRATION
+ */
+
+class ShoppingCart {
+    constructor() {
+        this.items = [];
+    }
+
+    /**
+     * Add item to cart - HAS A BUG!
+     */
+    addItem(item) {
+        // BUG: Doesn't validate item structure
+        this.items.push(item);
+        console.log(`Added ${item.name} to cart`);
+    }
+
+    /**
+     * Remove item from cart - HAS A BUG!
+     */
+    removeItem(itemId) {
+        // BUG: Doesn't check if item exists
+        const index = this.items.findIndex(item => item.id === itemId);
+        this.items.splice(index, 1);
+    }
+
+    /**
+     * Calculate total - HAS A BUG!
+     */
+    calculateTotal() {
+        // BUG: Doesn't handle quantity properly
+        return this.items.reduce((total, item) => {
+            return total + item.price; // Should multiply by quantity!
+        }, 0);
+    }
+
+    /**
+     * Get item count - WORKS CORRECTLY
+     */
+    getItemCount() {
+        return this.items.length;
+    }
+
+    /**
+     * Clear cart - WORKS CORRECTLY
+     */
+    clearCart() {
+        this.items = [];
+    }
+
+    /**
+     * Find item by ID - HAS A BUG!
+     */
+    findItem(itemId) {
+        // BUG: Returns undefined without helpful error
+        return this.items.find(item => item.id === itemId);
+    }
+}
+
+module.exports = ShoppingCart;
+```
+
+---
+
+## src/userManager.js
+```javascript
+/**
+ * User Management functions
+ * CONTAINS INTENTIONAL BUGS FOR DEMONSTRATION
+ */
+
+const users = [];
+
+/**
+ * Add new user - HAS BUGS!
+ */
+function addUser(user) {
+    // BUG: No validation for required fields
+    // BUG: Allows duplicate emails
+    users.push(user);
+    console.log('User added:', user);
+    return user;
+}
+
+/**
+ * Find user by email - WORKS CORRECTLY
+ */
+function findUserByEmail(email) {
+    return users.find(user => user.email === email);
+}
+
+/**
+ * Update user - HAS A BUG!
+ */
+function updateUser(email, updates) {
+    const user = findUserByEmail(email);
+    // BUG: Doesn't check if user exists
+    Object.assign(user, updates);
+    return user;
+}
+
+/**
+ * Delete user - HAS A BUG!
+ */
+function deleteUser(email) {
+    const index = users.findIndex(user => user.email === email);
+    // BUG: Doesn't check if user was found (index could be -1)
+    users.splice(index, 1);
+    return true;
+}
+
+/**
+ * Get all users - WORKS CORRECTLY
+ */
+function getAllUsers() {
+    return [...users];
+}
+
+/**
+ * Clear all users - for testing
+ */
+function clearUsers() {
+    users.length = 0;
+}
+
+module.exports = {
+    addUser,
+    findUserByEmail,
+    updateUser,
+    deleteUser,
+    getAllUsers,
+    clearUsers
+};
+```
+
+---
+
+## tests/utils.test.js
+```javascript
+const {
+    calculatePercentage,
+    formatCurrency,
+    validateEmail,
+    getDiscountPrice,
+    capitalizeFirst
+} = require('../src/utils');
+
+describe('Utils Functions', () => {
+    
+    describe('calculatePercentage', () => {
+        test('calculates percentage correctly', () => {
+            expect(calculatePercentage(25, 100)).toBe(25);
+            expect(calculatePercentage(1, 4)).toBe(25);
+        });
+
+        test('handles division by zero', () => {
+            // This will FAIL - demonstrates the bug
+            expect(() => calculatePercentage(10, 0)).toThrow();
+        });
+    });
+
+    describe('formatCurrency', () => {
+        test('formats positive amounts correctly', () => {
+            expect(formatCurrency(10)).toBe('$10.00');
+            expect(formatCurrency(99.99)).toBe('$99.99');
+        });
+
+        test('formats negative amounts correctly', () => {
+            // This might FAIL - demonstrates the bug
+            expect(formatCurrency(-10)).toBe('-$10.00');
+        });
+    });
+
+    describe('validateEmail', () => {
+        test('validates correct email addresses', () => {
+            expect(validateEmail('test@example.com')).toBe(true);
+            expect(validateEmail('user.name@domain.co.uk')).toBe(true);
+        });
+
+        test('rejects invalid email addresses', () => {
+            expect(validateEmail('invalid')).toBe(false);
+            expect(validateEmail('no@domain')).toBe(false);
+            expect(validateEmail('')).toBe(false);
+        });
+    });
+
+    describe('getDiscountPrice', () => {
+        test('calculates discount price correctly', () => {
+            // This will FAIL - demonstrates the bug
+            expect(getDiscountPrice(100, 10)).toBe(90);
+            expect(getDiscountPrice(50, 20)).toBe(40);
+        });
+    });
+
+    describe('capitalizeFirst', () => {
+        test('capitalizes first letter', () => {
+            expect(capitalizeFirst('hello')).toBe('Hello');
+            expect(capitalizeFirst('world')).toBe('World');
+        });
+
+        test('handles empty string', () => {
+            expect(capitalizeFirst('')).toBe('');
+        });
+    });
+});
+```
+
+---
+
+## tests/shoppingCart.test.js
+```javascript
+const ShoppingCart = require('../src/shoppingCart');
+
+describe('ShoppingCart', () => {
+    let cart;
+
+    beforeEach(() => {
+        cart = new ShoppingCart();
+    });
+
+    describe('addItem', () => {
+        test('adds item to cart', () => {
+            const item = { id: 1, name: 'Laptop', price: 999, quantity: 1 };
+            cart.addItem(item);
+            expect(cart.getItemCount()).toBe(1);
+        });
+
+        test('handles invalid item gracefully', () => {
+            // This will FAIL - demonstrates the bug
+            expect(() => cart.addItem({})).toThrow();
+        });
+    });
+
+    describe('removeItem', () => {
+        test('removes existing item', () => {
+            const item = { id: 1, name: 'Laptop', price: 999, quantity: 1 };
+            cart.addItem(item);
+            cart.removeItem(1);
+            expect(cart.getItemCount()).toBe(0);
+        });
+
+        test('handles non-existent item', () => {
+            // This will FAIL - demonstrates the bug
+            expect(() => cart.removeItem(999)).not.toThrow();
+        });
+    });
+
+    describe('calculateTotal', () => {
+        test('calculates total with single item', () => {
+            const item = { id: 1, name: 'Laptop', price: 999, quantity: 1 };
+            cart.addItem(item);
+            expect(cart.calculateTotal()).toBe(999);
+        });
+
+        test('calculates total with multiple quantities', () => {
+            // This will FAIL - demonstrates the bug
+            const item = { id: 1, name: 'Laptop', price: 100, quantity: 3 };
+            cart.addItem(item);
+            expect(cart.calculateTotal()).toBe(300);
+        });
+
+        test('returns 0 for empty cart', () => {
+            expect(cart.calculateTotal()).toBe(0);
+        });
+    });
+
+    describe('findItem', () => {
+        test('finds existing item', () => {
+            const item = { id: 1, name: 'Laptop', price: 999, quantity: 1 };
+            cart.addItem(item);
+            expect(cart.findItem(1)).toEqual(item);
+        });
+
+        test('returns undefined for non-existent item', () => {
+            expect(cart.findItem(999)).toBeUndefined();
+        });
+    });
+});
+```
+
+---
+
+## tests/userManager.test.js
+```javascript
+const {
+    addUser,
+    findUserByEmail,
+    updateUser,
+    deleteUser,
+    getAllUsers,
+    clearUsers
+} = require('../src/userManager');
+
+describe('User Manager', () => {
+    
+    beforeEach(() => {
+        clearUsers();
+    });
+
+    describe('addUser', () => {
+        test('adds a valid user', () => {
+            const user = {
+                name: 'John Doe',
+                email: 'john@example.com',
+                age: 30
+            };
+            addUser(user);
+            expect(findUserByEmail('john@example.com')).toEqual(user);
+        });
+
+        test('rejects user with missing email', () => {
+            // This will FAIL - demonstrates the bug
+            const user = { name: 'John Doe', age: 30 };
+            expect(() => addUser(user)).toThrow();
+        });
+
+        test('prevents duplicate emails', () => {
+            // This will FAIL - demonstrates the bug
+            const user1 = { name: 'John', email: 'test@example.com' };
+            const user2 = { name: 'Jane', email: 'test@example.com' };
+            addUser(user1);
+            expect(() => addUser(user2)).toThrow();
+        });
+    });
+
+    describe('updateUser', () => {
+        test('updates existing user', () => {
+            const user = { name: 'John', email: 'john@example.com', age: 30 };
+            addUser(user);
+            updateUser('john@example.com', { age: 31 });
+            expect(findUserByEmail('john@example.com').age).toBe(31);
+        });
+
+        test('throws error for non-existent user', () => {
+            // This will FAIL - demonstrates the bug
+            expect(() => updateUser('nonexistent@example.com', { age: 25 }))
+                .toThrow();
+        });
+    });
+
+    describe('deleteUser', () => {
+        test('deletes existing user', () => {
+            const user = { name: 'John', email: 'john@example.com' };
+            addUser(user);
+            deleteUser('john@example.com');
+            expect(findUserByEmail('john@example.com')).toBeUndefined();
+        });
+
+        test('handles deleting non-existent user', () => {
+            // This will FAIL - demonstrates the bug
+            expect(() => deleteUser('nonexistent@example.com')).not.toThrow();
+        });
+    });
+
+    describe('getAllUsers', () => {
+        test('returns all users', () => {
+            addUser({ name: 'John', email: 'john@example.com' });
+            addUser({ name: 'Jane', email: 'jane@example.com' });
+            expect(getAllUsers()).toHaveLength(2);
+        });
+
+        test('returns empty array when no users', () => {
+            expect(getAllUsers()).toEqual([]);
+        });
+    });
+});
+```
+
+---
+
+## Running the Demo
+
+### 1. Install dependencies
+```bash
+npm install
+```
+
+### 2. Run all tests (will show failures)
+```bash
+npm test
+```
+
+### 3. Run tests in watch mode
+```bash
+npm run test:watch
+```
+
+### 4. Generate coverage report
+```bash
+npm run test:coverage
+```
+
+---
+
+## Key Points
+
+- Tests help catch bugs early
+- Descriptive test names are documentation
+- Each test should test one thing
+- Setup/teardown keeps tests isolated
+- Edge cases are important
+- Good error messages help debugging
+
 ---
 
 ## Resources
