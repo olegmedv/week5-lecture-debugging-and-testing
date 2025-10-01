@@ -10,8 +10,8 @@
  * @returns {number} Percentage
  */
 function calculatePercentage(value, total) {
-    // BUG: No division by zero check
-    return (value / total) * 100;
+  // BUG: No division by zero check
+  return (value / total) * 100;
 }
 
 /**
@@ -20,8 +20,12 @@ function calculatePercentage(value, total) {
  * @returns {string} Formatted currency
  */
 function formatCurrency(amount) {
-    // BUG: Doesn't handle negative numbers well
-    return '$' + amount.toFixed(2);
+  // BUG: Doesn't handle negative numbers well
+  if (amount < 0) {
+    return "-$" + Math.abs(amount).toFixed(2);
+  } else {
+    return "$" + amount.toFixed(2);
+  }
 }
 
 /**
@@ -30,8 +34,8 @@ function formatCurrency(amount) {
  * @returns {boolean} True if valid
  */
 function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 /**
@@ -41,9 +45,9 @@ function validateEmail(email) {
  * @returns {number} Discounted price
  */
 function getDiscountPrice(price, discountPercent) {
-    // BUG: Logic error - returns discount amount instead of final price
-    const discount = price * (discountPercent / 100);
-    return discount;
+  // BUG: Logic error - returns discount amount instead of final price
+  const discount = price * (discountPercent / 100);
+  return discount;
 }
 
 /**
@@ -52,14 +56,14 @@ function getDiscountPrice(price, discountPercent) {
  * @returns {string} Capitalized string
  */
 function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 module.exports = {
-    calculatePercentage,
-    formatCurrency,
-    validateEmail,
-    getDiscountPrice,
-    capitalizeFirst
+  calculatePercentage,
+  formatCurrency,
+  validateEmail,
+  getDiscountPrice,
+  capitalizeFirst,
 };
