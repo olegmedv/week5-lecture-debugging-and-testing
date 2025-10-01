@@ -13,6 +13,9 @@ class ShoppingCart {
      */
     addItem(item) {
         // BUG: Doesn't validate item structure
+        if (!item.name || !item.price || !item.id) {
+            throw new Error('Invalid item: must have name, price, and id');
+        }
         this.items.push(item);
         console.log(`Added ${item.name} to cart`);
     }
