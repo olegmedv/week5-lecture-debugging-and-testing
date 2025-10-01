@@ -11,6 +11,9 @@
  */
 function calculatePercentage(value, total) {
   // BUG: No division by zero check
+  if (total === 0) {
+    throw new Error('Cannot divide by zero');
+  }
   return (value / total) * 100;
 }
 
