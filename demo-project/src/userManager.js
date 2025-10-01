@@ -11,6 +11,12 @@ const users = [];
 function addUser(user) {
     // BUG: No validation for required fields
     // BUG: Allows duplicate emails
+    if (!user.email) {
+        throw new Error('Email is required');
+    }
+    if (findUserByEmail(user.email)) {
+        throw new Error('User with this email already exists');
+    }
     users.push(user);
     console.log('User added:', user);
     return user;
