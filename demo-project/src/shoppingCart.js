@@ -32,7 +32,7 @@ class ShoppingCart {
     calculateTotal() {
         // BUG: Doesn't handle quantity properly
         return this.items.reduce((total, item) => {
-            return total + item.price; // Should multiply by quantity!
+            return total + item.price*item.quantity; // Should multiply by quantity!
         }, 0);
     }
 
