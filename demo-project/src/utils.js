@@ -50,7 +50,6 @@ function validateEmail(email) {
 function getDiscountPrice(price, discountPercent) {
   // BUG: Logic error - returns discount amount instead of final price
   const discount = price * (discountPercent / 100);
-  return discount;
   return price - discount;
 }
 
